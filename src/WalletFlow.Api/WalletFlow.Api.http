@@ -1,0 +1,6 @@
+@WalletFlow.Api_HostAddress = http://localhost:5286
+
+GET {{WalletFlow.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/WalletFlow.Api/WalletFlow.Api.csproj" />
+    <Project Path="src/WalletFlow.Application/WalletFlow.Application.csproj" />
+    <Project Path="src/WalletFlow.Domain/WalletFlow.Domain.csproj" />
+    <Project Path="src/WalletFlow.Infrastructure/WalletFlow.Infrastructure.csproj" />
+  </Folder>
+</Solution>
