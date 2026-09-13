@@ -1,11 +1,14 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using WalletFlow.Api.Endpoints;
 using WalletFlow.Api.Middlewares;
 using WalletFlow.Application;
+using WalletFlow.Application.Common.Interfaces;
 using WalletFlow.Infrastructure;
+using WalletFlow.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,8 +38,6 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddAuthorization();
-
-// Swagger — hỗ trợ nhập Bearer token để test API có auth
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -69,6 +70,28 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddRateLimiter(options =>
+{
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        context.HttpContext.Response.ContentType = "application/json";
+        await context.HttpContext.Response.WriteAsync(
+            """{"code":"RATE_LIMIT_EXCEEDED","errors":["Bạn đã gửi quá nhiều yêu cầu, vui lòng thử lại sau."]}""",
+            cancellationToken);
+    };
+
+    options.AddPolicy("otp", httpContext =>
+        System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 3,
+                Window = TimeSpan.FromHours(1),
+                QueueLimit = 0
+            }));
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -78,14 +101,13 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
-
 app.UseHttpsRedirection();
-
+app.UseRateLimiter();
 app.UseCors("AllowFrontend");
-
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapSeedEndpoints();
 app.MapAuthEndpoints();
 
 app.Run();

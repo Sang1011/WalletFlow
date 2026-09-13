@@ -20,8 +20,6 @@ public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordComman
     {
         var user = _dbContext.Users.FirstOrDefault(u => u.PhoneNumber == request.PhoneNumber);
 
-        // Luôn trả Success dù số điện thoại không tồn tại — tránh lộ thông tin
-        // "số này có đăng ký hay không" cho kẻ tấn công dò số (user enumeration).
         if (user is null)
             return Result.Success();
 

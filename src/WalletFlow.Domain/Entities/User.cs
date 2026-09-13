@@ -36,6 +36,8 @@ public class User : BaseEntity
         };
     }
 
+    public void PromoteToAdmin() => IsAdmin = true;
+
     public void ChangePassword(string newPasswordHash)
     {
         PasswordHash = newPasswordHash;
