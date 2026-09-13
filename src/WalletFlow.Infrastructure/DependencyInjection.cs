@@ -1,0 +1,32 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using WalletFlow.Application.Common.Interfaces;
+using WalletFlow.Infrastructure.Identity;
+using WalletFlow.Infrastructure.Persistence;
+using WalletFlow.Infrastructure.Services;
+
+namespace WalletFlow.Infrastructure;
+
+public static class DependencyInjection
+{
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+
+        services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
+
+        services.Configure<JwtSettings>(configuration.GetSection("Jwt"));
+
+        services.AddHttpContextAccessor();
+        services.AddScoped<ISmsSender, FakeSmsSender>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<ITokenService, JwtTokenService>();
+        services.AddScoped<IDateTimeProvider, DateTimeProvider>();
+
+        return services;
+    }
+}
