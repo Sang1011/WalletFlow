@@ -9,17 +9,18 @@ public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordComman
     private readonly IAppDbContext _dbContext;
     private readonly ISmsSender _smsSender;
     private readonly ICacheService _cacheService;
-
-    private static readonly TimeSpan OtpTtl = TimeSpan.FromMinutes(10);
+    private readonly IOtpSettingsProvider _otpSettings;
 
     public ForgotPasswordCommandHandler(
         IAppDbContext dbContext,
         ISmsSender smsSender,
-        ICacheService cacheService)
+        ICacheService cacheService,
+        IOtpSettingsProvider otpSettings)
     {
         _dbContext = dbContext;
         _smsSender = smsSender;
         _cacheService = cacheService;
+        _otpSettings = otpSettings;
     }
 
     public async Task<Result> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
@@ -34,7 +35,7 @@ public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordComman
         await _cacheService.SetAsync(
             BuildOtpKey(request.PhoneNumber),
             otpCode,
-            OtpTtl,
+            _otpSettings.GetOtpExpiry(),
             cancellationToken);
 
         await _smsSender.SendOtpAsync(request.PhoneNumber, otpCode, cancellationToken);
