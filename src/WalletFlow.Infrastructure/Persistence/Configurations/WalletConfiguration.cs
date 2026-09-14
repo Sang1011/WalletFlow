@@ -12,9 +12,7 @@ public class WalletConfiguration : IEntityTypeConfiguration<Wallet>
         builder.Property(w => w.Balance).HasPrecision(18, 2);
         builder.Property(w => w.Currency).HasConversion<string>().HasMaxLength(10);
         builder.Property(w => w.Status).HasConversion<string>().HasMaxLength(20);
-
-        builder.Property(w => w.RowVersion).IsRowVersion();
-
+        builder.Property(w => w.Version).IsRowVersion();
         builder.HasIndex(w => w.UserId);
     }
 }

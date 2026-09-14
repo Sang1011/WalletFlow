@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using StackExchange.Redis;
 using WalletFlow.Application.Common.Interfaces;
 using WalletFlow.Infrastructure.Identity;
 using WalletFlow.Infrastructure.Persistence;
@@ -21,6 +22,10 @@ public static class DependencyInjection
         services.Configure<JwtSettings>(configuration.GetSection("Jwt"));
 
         services.AddHttpContextAccessor();
+        services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis") ?? "localhost:6379"));
+
+        services.AddScoped<ICacheService, RedisCacheService>();
+        services.AddScoped<IIdempotencyService, RedisIdempotencyService>();
         services.AddScoped<ISmsSender, FakeSmsSender>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
