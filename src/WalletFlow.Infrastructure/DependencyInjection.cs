@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,6 +6,7 @@ using WalletFlow.Application.Common.Interfaces;
 using WalletFlow.Infrastructure.Identity;
 using WalletFlow.Infrastructure.Persistence;
 using WalletFlow.Infrastructure.Services;
+using WalletFlow.Infrastructure.Settings;
 
 namespace WalletFlow.Infrastructure;
 
@@ -23,7 +23,8 @@ public static class DependencyInjection
 
         services.AddHttpContextAccessor();
         services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis") ?? "localhost:6379"));
-
+        services.Configure<OtpSettings>(configuration.GetSection("Otp"));
+        services.AddScoped<IOtpSettingsProvider, OtpSettingsProvider>();
         services.AddScoped<ICacheService, RedisCacheService>();
         services.AddScoped<IIdempotencyService, RedisIdempotencyService>();
         services.AddScoped<ISmsSender, FakeSmsSender>();
