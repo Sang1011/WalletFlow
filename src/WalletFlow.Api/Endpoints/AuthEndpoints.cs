@@ -19,7 +19,7 @@ public static class AuthEndpoints
         {
             var result = await sender.Send(command);
             return result.IsSuccess
-                ? Results.Ok(new ApiResponse<AuthResponse>(result.Value!))
+                ? Results.Ok(new ApiResponse<AuthResponse>(result.Value!, "Đăng ký tài khoản thành công."))
                 : Results.BadRequest(new ApiErrorResponse(result.Error!, result.ErrorCode));
         })
         .WithName("Register")
@@ -31,7 +31,7 @@ public static class AuthEndpoints
         {
             var result = await sender.Send(command);
             return result.IsSuccess
-                ? Results.Ok(new ApiResponse<AuthResponse>(result.Value!))
+                ? Results.Ok(new ApiResponse<AuthResponse>(result.Value!, "Đăng nhập thành công."))
                 : Results.BadRequest(new ApiErrorResponse(result.Error!, result.ErrorCode));
         })
         .WithName("Login")
@@ -43,7 +43,7 @@ public static class AuthEndpoints
         {
             var result = await sender.Send(command);
             return result.IsSuccess
-                ? Results.Ok(new ApiResponse<AuthResponse>(result.Value!))
+                ? Results.Ok(new ApiResponse<AuthResponse>(result.Value!, "Làm mới token thành công."))
                 : Results.BadRequest(new ApiErrorResponse(result.Error!, result.ErrorCode));
         })
         .WithName("RefreshToken")
@@ -55,12 +55,12 @@ public static class AuthEndpoints
         {
             var result = await sender.Send(command);
             return result.IsSuccess
-                ? Results.Ok()
+                ? Results.Ok(new ApiResponse("Mã OTP đã được gửi (nếu số điện thoại tồn tại trong hệ thống)."))
                 : Results.BadRequest(new ApiErrorResponse(result.Error!, result.ErrorCode));
         })
         .WithName("ForgotPassword")
         .WithSummary("Gửi mã OTP về số điện thoại để đặt lại mật khẩu")
-        .Produces(StatusCodes.Status200OK)
+        .Produces<ApiResponse>(StatusCodes.Status200OK)
         .Produces<ApiErrorResponse>(StatusCodes.Status400BadRequest)
         .Produces(StatusCodes.Status429TooManyRequests)
         .RequireRateLimiting("otp");
@@ -69,12 +69,12 @@ public static class AuthEndpoints
         {
             var result = await sender.Send(command);
             return result.IsSuccess
-                ? Results.Ok()
+                ? Results.Ok(new ApiResponse("Đặt lại mật khẩu thành công."))
                 : Results.BadRequest(new ApiErrorResponse(result.Error!, result.ErrorCode));
         })
         .WithName("ResetPassword")
         .WithSummary("Xác nhận OTP và đặt lại mật khẩu mới")
-        .Produces(StatusCodes.Status200OK)
+        .Produces<ApiResponse>(StatusCodes.Status200OK)
         .Produces<ApiErrorResponse>(StatusCodes.Status400BadRequest);
     }
 }
