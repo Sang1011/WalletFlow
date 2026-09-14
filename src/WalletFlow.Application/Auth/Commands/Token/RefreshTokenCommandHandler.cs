@@ -31,7 +31,10 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, R
 
         var newAccessToken = _tokenService.GenerateAccessToken(user);
         var newRefreshTokenValue = _tokenService.GenerateRefreshToken();
-        var newRefreshToken = Domain.Entities.RefreshToken.Create(user.Id, newRefreshTokenValue, DateTime.UtcNow.AddDays(7));
+        var newRefreshToken = Domain.Entities.RefreshToken.Create(
+            user.Id,
+            newRefreshTokenValue,
+            _tokenService.GetRefreshTokenExpiry());
 
         _dbContext.RefreshTokens.Add(newRefreshToken);
         await _dbContext.SaveChangesAsync(cancellationToken);

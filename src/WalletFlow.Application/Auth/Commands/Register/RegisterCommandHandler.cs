@@ -48,7 +48,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Au
 
         var accessToken = _tokenService.GenerateAccessToken(user);
         var refreshTokenValue = _tokenService.GenerateRefreshToken();
-        var refreshToken = RefreshToken.Create(user.Id, refreshTokenValue, DateTime.UtcNow.AddDays(7));
+        var refreshToken = RefreshToken.Create(user.Id, refreshTokenValue, _tokenService.GetRefreshTokenExpiry());
 
         _dbContext.RefreshTokens.Add(refreshToken);
 
