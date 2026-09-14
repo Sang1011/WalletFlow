@@ -24,7 +24,9 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
         services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis") ?? "localhost:6379"));
         services.Configure<OtpSettings>(configuration.GetSection("Otp"));
+        services.Configure<WalletSettings>(configuration.GetSection("Wallet"));
         services.AddScoped<IOtpSettingsProvider, OtpSettingsProvider>();
+        services.AddScoped<IWalletSettingsProvider, WalletSettingsProvider>();
         services.AddScoped<ICacheService, RedisCacheService>();
         services.AddScoped<IIdempotencyService, RedisIdempotencyService>();
         services.AddScoped<ISmsSender, FakeSmsSender>();

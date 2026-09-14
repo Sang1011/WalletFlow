@@ -10,12 +10,12 @@ public static class SeedEndpoints
         if (!app.ServiceProvider.GetRequiredService<IWebHostEnvironment>().IsDevelopment())
             return;
 
-        app.MapPost("/api/dev/seed", async (AppDbContext dbContext, IPasswordHasher passwordHasher, ILogger<Program> logger) =>
+        app.MapPost("/api/dev/seed", async (AppDbContext dbContext, IPasswordHasher passwordHasher, IWalletSettingsProvider walletSettings, ILogger<Program> logger) =>
         {
             if (dbContext.Users.Any())
                 return Results.Ok(new { message = "Database đã có dữ liệu, bỏ qua seed." });
 
-            await DataSeeder.SeedAsync(dbContext, passwordHasher, logger);
+            await DataSeeder.SeedAsync(dbContext, passwordHasher, walletSettings, logger);
 
             return Results.Ok(new
             {

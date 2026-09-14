@@ -109,5 +109,6 @@ app.UseAuthorization();
 
 app.MapSeedEndpoints();
 app.MapAuthEndpoints();
+app.MapWalletEndpoints();
 
 app.Run();

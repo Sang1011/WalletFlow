@@ -3,7 +3,6 @@ using WalletFlow.Application.Auth.Common;
 using WalletFlow.Application.Common.Interfaces;
 using WalletFlow.Application.Common.Models;
 using WalletFlow.Domain.Entities;
-using WalletFlow.Domain.Enums;
 
 namespace WalletFlow.Application.Auth.Commands.Register;
 
@@ -12,15 +11,18 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Au
     private readonly IAppDbContext _dbContext;
     private readonly IPasswordHasher _passwordHasher;
     private readonly ITokenService _tokenService;
+    private readonly IWalletSettingsProvider _walletSettings;
 
     public RegisterCommandHandler(
         IAppDbContext dbContext,
         IPasswordHasher passwordHasher,
-        ITokenService tokenService)
+        ITokenService tokenService,
+        IWalletSettingsProvider walletSettings)
     {
         _dbContext = dbContext;
         _passwordHasher = passwordHasher;
         _tokenService = tokenService;
+        _walletSettings = walletSettings;
     }
 
     public async Task<Result<AuthResponse>> Handle(RegisterCommand request, CancellationToken cancellationToken)
@@ -40,8 +42,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Au
         var passwordHash = _passwordHasher.Hash(request.Password);
         var user = User.Create(request.Username, request.PhoneNumber, request.Email, passwordHash, request.FullName);
 
-
-        var defaultWallet = Wallet.Create(user.Id, CurrencyCode.VND);
+        var defaultWallet = Wallet.Create(user.Id, _walletSettings.GetDefaultCurrency());
 
         _dbContext.Users.Add(user);
         _dbContext.Wallets.Add(defaultWallet);
