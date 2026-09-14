@@ -55,7 +55,7 @@ public static class AuthEndpoints
         {
             var result = await sender.Send(command);
             return result.IsSuccess
-                ? Results.Ok(new ApiResponse("Mã OTP đã được gửi (nếu số điện thoại tồn tại trong hệ thống)."))
+                ? Results.Ok(new ApiResponse("Mã OTP đã được gửi đi, mã sẽ hết hạn sau 10 phút."))
                 : Results.BadRequest(new ApiErrorResponse(result.Error!, result.ErrorCode));
         })
         .WithName("ForgotPassword")

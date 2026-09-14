@@ -14,7 +14,6 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<LedgerEntry> LedgerEntries => Set<LedgerEntry>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
-    public DbSet<PasswordResetOtp> PasswordResetOtps => Set<PasswordResetOtp>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

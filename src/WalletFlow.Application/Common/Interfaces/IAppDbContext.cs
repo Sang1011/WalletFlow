@@ -11,7 +11,6 @@ public interface IAppDbContext
     DbSet<LedgerEntry> LedgerEntries { get; }
     DbSet<AuditLog> AuditLogs { get; }
     DbSet<RefreshToken> RefreshTokens { get; }
-    DbSet<PasswordResetOtp> PasswordResetOtps { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

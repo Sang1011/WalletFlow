@@ -1,7 +1,6 @@
 using MediatR;
 using WalletFlow.Application.Common.Interfaces;
 using WalletFlow.Application.Common.Models;
-using WalletFlow.Domain.Entities;
 
 namespace WalletFlow.Application.Auth.Commands.ForgotPassword;
 
@@ -9,11 +8,18 @@ public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordComman
 {
     private readonly IAppDbContext _dbContext;
     private readonly ISmsSender _smsSender;
+    private readonly ICacheService _cacheService;
 
-    public ForgotPasswordCommandHandler(IAppDbContext dbContext, ISmsSender smsSender)
+    private static readonly TimeSpan OtpTtl = TimeSpan.FromMinutes(10);
+
+    public ForgotPasswordCommandHandler(
+        IAppDbContext dbContext,
+        ISmsSender smsSender,
+        ICacheService cacheService)
     {
         _dbContext = dbContext;
         _smsSender = smsSender;
+        _cacheService = cacheService;
     }
 
     public async Task<Result> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
@@ -24,10 +30,12 @@ public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordComman
             return Result.Success();
 
         var otpCode = GenerateOtp();
-        var otp = PasswordResetOtp.Create(user.Id, otpCode, DateTime.UtcNow.AddMinutes(5));
 
-        _dbContext.PasswordResetOtps.Add(otp);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await _cacheService.SetAsync(
+            BuildOtpKey(request.PhoneNumber),
+            otpCode,
+            OtpTtl,
+            cancellationToken);
 
         await _smsSender.SendOtpAsync(request.PhoneNumber, otpCode, cancellationToken);
 
@@ -35,4 +43,6 @@ public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordComman
     }
 
     private static string GenerateOtp() => Random.Shared.Next(100000, 999999).ToString();
+
+    private static string BuildOtpKey(string phoneNumber) => $"otp:reset-password:{phoneNumber}";
 }
