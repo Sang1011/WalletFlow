@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using WalletFlow.Application.Common.Interfaces;
 using WalletFlow.Infrastructure.Persistence;
 
@@ -8,35 +7,28 @@ public static class SeedEndpoints
 {
     public static void MapSeedEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/dev/seed")
-            .WithTags("Development");
+        if (!app.ServiceProvider.GetRequiredService<IWebHostEnvironment>().IsDevelopment())
+            return;
 
-        group.MapPost("/", async (
-            AppDbContext dbContext,
-            IPasswordHasher passwordHasher,
-            ILogger<Program> logger) =>
+        app.MapPost("/api/dev/seed", async (AppDbContext dbContext, IPasswordHasher passwordHasher, ILogger<Program> logger) =>
         {
-            if (await dbContext.Users.AnyAsync())
-            {
-                return Results.Conflict(new
-                {
-                    code = "DATABASE_ALREADY_SEEDED",
-                    message = "Database đã có dữ liệu, không cần seed."
-                });
-            }
+            if (dbContext.Users.Any())
+                return Results.Ok(new { message = "Database đã có dữ liệu, bỏ qua seed." });
 
-            await DataSeeder.SeedAsync(
-                dbContext,
-                passwordHasher,
-                logger);
+            await DataSeeder.SeedAsync(dbContext, passwordHasher, logger);
 
             return Results.Ok(new
             {
-                code = "SEED_SUCCESS",
-                message = "Seed dữ liệu thành công."
+                message = "Seed thành công.",
+                accounts = new[]
+                {
+                    new { role = "Admin", username = "admin", password = "Admin@123" },
+                    new { role = "User", username = "testuser", password = "User@123" }
+                }
             });
         })
-        .WithName("SeedDatabase")
-        .WithSummary("Seed dữ liệu mặc định cho database");
+        .WithName("SeedDevData")
+        .WithTags("Dev")
+        .WithSummary("[DEV ONLY] Tạo tài khoản Admin + User mẫu để test");
     }
 }
