@@ -12,8 +12,7 @@ public class Wallet : BaseEntity
     public decimal Balance { get; private set; }
     public WalletStatus Status { get; private set; }
 
-    // dùng cho optimistic concurrency (EF Core [Timestamp] hoặc RowVersion)
-    public byte[] RowVersion { get; private set; } = Array.Empty<byte>();
+    public uint Version { get; private set; }
 
     private Wallet() { }
 
