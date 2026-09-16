@@ -26,6 +26,7 @@ public static class DependencyInjection
         services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis") ?? "localhost:6379"));
         services.Configure<OtpSettings>(configuration.GetSection("Otp"));
         services.Configure<WalletSettings>(configuration.GetSection("Wallet"));
+        services.AddScoped<IOutboxService, OutboxService>();
         services.AddScoped<IAuditLogService, AuditLogService>();
         services.AddScoped<IOtpSettingsProvider, OtpSettingsProvider>();
         services.AddScoped<IWalletSettingsProvider, WalletSettingsProvider>();
