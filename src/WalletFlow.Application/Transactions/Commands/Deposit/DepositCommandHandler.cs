@@ -17,17 +17,20 @@ public class DepositCommandHandler : IRequestHandler<DepositCommand, Result<Tran
     private readonly IAppDbContext _dbContext;
     private readonly ICurrentUserService _currentUserService;
     private readonly IAuditLogService _auditLogService;
+    private readonly IOutboxService _outboxService;
     private readonly ILogger<DepositCommandHandler> _logger;
 
     public DepositCommandHandler(
         IAppDbContext dbContext,
         ICurrentUserService currentUserService,
         IAuditLogService auditLogService,
+        IOutboxService outboxService,
         ILogger<DepositCommandHandler> logger)
     {
         _dbContext = dbContext;
         _currentUserService = currentUserService;
         _auditLogService = auditLogService;
+        _outboxService = outboxService;
         _logger = logger;
     }
 
@@ -70,6 +73,10 @@ public class DepositCommandHandler : IRequestHandler<DepositCommand, Result<Tran
                 entityId: wallet.Id,
                 oldValue: new { Balance = balanceBefore },
                 newValue: new { Balance = wallet.Balance, TransactionId = transaction.Id });
+
+            _outboxService.Enqueue(
+                type: "TransactionCompleted",
+                payload: new TransactionCompletedNotification(transaction.Id, wallet.Id, "Deposit", request.Amount, wallet.Currency.ToString()));
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
