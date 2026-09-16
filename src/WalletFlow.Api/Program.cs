@@ -102,6 +102,7 @@ builder.Services.AddHangfire(config => config
 
 builder.Services.AddHangfireServer();
 builder.Services.AddScoped<OutboxProcessorJob>();
+builder.Services.AddScoped<ReconciliationJob>();
 
 var app = builder.Build();
 
@@ -116,6 +117,11 @@ RecurringJob.AddOrUpdate<OutboxProcessorJob>(
     "process-outbox-messages",
     job => job.ProcessPendingMessagesAsync(),
     Cron.Minutely);
+
+RecurringJob.AddOrUpdate<ReconciliationJob>(
+    "daily-reconciliation",
+    job => job.RunAsync(),
+    Cron.Daily); // chạy mỗi ngày lúc 00:00 UTC
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseHttpsRedirection();
