@@ -12,6 +12,7 @@ public interface IAppDbContext
     DbSet<AuditLog> AuditLogs { get; }
     DbSet<RefreshToken> RefreshTokens { get; }
     DbSet<OutboxMessage> OutboxMessages { get; }
+    DbSet<ReconciliationMismatch> ReconciliationMismatches { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
