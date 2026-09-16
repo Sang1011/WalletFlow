@@ -5,4 +5,8 @@
     <Project Path="src/WalletFlow.Domain/WalletFlow.Domain.csproj" />
     <Project Path="src/WalletFlow.Infrastructure/WalletFlow.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/WalletFlow.IntegrationTests/WalletFlow.IntegrationTests.csproj" />
+    <Project Path="tests/WalletFlow.UnitTests/WalletFlow.UnitTests.csproj" />
+  </Folder>
 </Solution>
