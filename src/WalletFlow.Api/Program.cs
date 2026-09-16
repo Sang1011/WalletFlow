@@ -10,6 +10,9 @@ using WalletFlow.Application.Common.Constants;
 using WalletFlow.Application.Common.Interfaces;
 using WalletFlow.Infrastructure;
 using WalletFlow.Infrastructure.Persistence;
+using Hangfire;
+using Hangfire.PostgreSql;
+using WalletFlow.Infrastructure.BackgroundJobs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -93,13 +96,26 @@ builder.Services.AddRateLimiter(options =>
             }));
 });
 
+builder.Services.AddHangfire(config => config
+    .UsePostgreSqlStorage(options =>
+        options.UseNpgsqlConnection(builder.Configuration.GetConnectionString("DefaultConnection"))));
+
+builder.Services.AddHangfireServer();
+builder.Services.AddScoped<OutboxProcessorJob>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseHangfireDashboard("/hangfire");
 }
+
+RecurringJob.AddOrUpdate<OutboxProcessorJob>(
+    "process-outbox-messages",
+    job => job.ProcessPendingMessagesAsync(),
+    Cron.Minutely);
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseHttpsRedirection();
