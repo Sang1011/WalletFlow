@@ -1,4 +1,5 @@
 using MediatR;
+using WalletFlow.Application.Common.Constants;
 using WalletFlow.Application.Common.Interfaces;
 using WalletFlow.Application.Common.Models;
 using WalletFlow.Application.Wallets.Common;
@@ -24,7 +25,7 @@ public class CreateWalletCommandHandler : IRequestHandler<CreateWalletCommand, R
         var alreadyExists = _dbContext.Wallets.Any(w => w.UserId == userId && w.Currency == request.Currency);
         if (alreadyExists)
             return Result<WalletResponse>.Failure(
-                $"Bạn đã có ví {request.Currency} rồi.", "WALLET_ALREADY_EXISTS");
+                $"Bạn đã có ví {request.Currency} rồi.", ErrorCodes.Wallet.AlreadyExists);
 
         var wallet = Wallet.Create(userId, request.Currency);
 

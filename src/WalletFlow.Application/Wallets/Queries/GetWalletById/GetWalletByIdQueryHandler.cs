@@ -1,4 +1,5 @@
 using MediatR;
+using WalletFlow.Application.Common.Constants;
 using WalletFlow.Application.Common.Interfaces;
 using WalletFlow.Application.Common.Models;
 using WalletFlow.Application.Wallets.Common;
@@ -23,10 +24,10 @@ public class GetWalletByIdQueryHandler : IRequestHandler<GetWalletByIdQuery, Res
         var wallet = _dbContext.Wallets.FirstOrDefault(w => w.Id == request.WalletId);
 
         if (wallet is null)
-            return Task.FromResult(Result<WalletResponse>.Failure("Ví không tồn tại.", "WALLET_NOT_FOUND"));
+            return Task.FromResult(Result<WalletResponse>.Failure("Ví không tồn tại.", ErrorCodes.Wallet.NotFound));
 
         if (wallet.UserId != userId && !_currentUserService.IsAdmin)
-            return Task.FromResult(Result<WalletResponse>.Failure("Ví không tồn tại.", "WALLET_NOT_FOUND"));
+            return Task.FromResult(Result<WalletResponse>.Failure("Ví không tồn tại.", ErrorCodes.Wallet.NotFound));
 
         return Task.FromResult(Result<WalletResponse>.Success(wallet.ToResponse()));
     }

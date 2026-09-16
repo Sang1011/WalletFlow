@@ -6,6 +6,7 @@ using Microsoft.OpenApi;
 using WalletFlow.Api.Endpoints;
 using WalletFlow.Api.Middlewares;
 using WalletFlow.Application;
+using WalletFlow.Application.Common.Constants;
 using WalletFlow.Application.Common.Interfaces;
 using WalletFlow.Infrastructure;
 using WalletFlow.Infrastructure.Persistence;
@@ -77,7 +78,7 @@ builder.Services.AddRateLimiter(options =>
         context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
         context.HttpContext.Response.ContentType = "application/json";
         await context.HttpContext.Response.WriteAsync(
-            """{"code":"RATE_LIMIT_EXCEEDED","errors":["Bạn đã gửi quá nhiều yêu cầu, vui lòng thử lại sau."]}""",
+            $$"""{"code":"{{ErrorCodes.Common.RateLimitExceeded}}","errors":["Bạn đã gửi quá nhiều yêu cầu, vui lòng thử lại sau."]}""",
             cancellationToken);
     };
 
@@ -110,5 +111,6 @@ app.UseAuthorization();
 app.MapSeedEndpoints();
 app.MapAuthEndpoints();
 app.MapWalletEndpoints();
+app.MapTransactionEndpoints();
 
 app.Run();

@@ -1,5 +1,6 @@
 using MediatR;
 using WalletFlow.Application.Auth.Common;
+using WalletFlow.Application.Common.Constants;
 using WalletFlow.Application.Common.Interfaces;
 using WalletFlow.Application.Common.Models;
 
@@ -21,11 +22,11 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, R
         var storedToken = _dbContext.RefreshTokens.FirstOrDefault(rt => rt.Token == request.RefreshToken);
 
         if (storedToken is null || !storedToken.IsActive)
-            return Result<AuthResponse>.Failure("Refresh token không hợp lệ hoặc đã hết hạn.", "INVALID_REFRESH_TOKEN");
+            return Result<AuthResponse>.Failure("Refresh token không hợp lệ hoặc đã hết hạn.", ErrorCodes.Auth.InvalidRefreshToken);
 
         var user = _dbContext.Users.FirstOrDefault(u => u.Id == storedToken.UserId);
         if (user is null)
-            return Result<AuthResponse>.Failure("Người dùng không tồn tại.", "USER_NOT_FOUND");
+            return Result<AuthResponse>.Failure("Người dùng không tồn tại.", ErrorCodes.Auth.UserNotFound);
 
         storedToken.Revoke();
 

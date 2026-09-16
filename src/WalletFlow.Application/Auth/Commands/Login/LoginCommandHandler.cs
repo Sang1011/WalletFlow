@@ -1,5 +1,6 @@
 using MediatR;
 using WalletFlow.Application.Auth.Common;
+using WalletFlow.Application.Common.Constants;
 using WalletFlow.Application.Common.Interfaces;
 using WalletFlow.Application.Common.Models;
 using WalletFlow.Domain.Entities;
@@ -28,10 +29,10 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResp
             u.Username == request.Identifier || u.PhoneNumber == request.Identifier);
 
         if (user is null || !_passwordHasher.Verify(request.Password, user.PasswordHash))
-            return Result<AuthResponse>.Failure("Tên đăng nhập/SĐT hoặc mật khẩu không đúng.", "INVALID_CREDENTIALS");
+            return Result<AuthResponse>.Failure("Tên đăng nhập/SĐT hoặc mật khẩu không đúng.", ErrorCodes.Auth.InvalidCredentials);
 
         if (user.IsLocked)
-            return Result<AuthResponse>.Failure("Tài khoản đã bị khoá.", "ACCOUNT_LOCKED");
+            return Result<AuthResponse>.Failure("Tài khoản đã bị khoá.", ErrorCodes.Auth.AccountLocked);
 
         var accessToken = _tokenService.GenerateAccessToken(user);
         var refreshTokenValue = _tokenService.GenerateRefreshToken();

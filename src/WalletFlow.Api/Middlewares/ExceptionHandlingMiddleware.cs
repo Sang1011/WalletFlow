@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using FluentValidation;
+using WalletFlow.Application.Common.Constants;
 using WalletFlow.Application.Common.Models;
 using WalletFlow.Domain.Exceptions;
 
@@ -28,19 +29,19 @@ public class ExceptionHandlingMiddleware
             await WriteErrorAsync(context, HttpStatusCode.BadRequest,
                 new ApiErrorResponse(
                     "Dữ liệu không hợp lệ.",
-                    "VALIDATION_ERROR",
+                    ErrorCodes.Common.ValidationError,
                     ex.Errors.Select(e => e.ErrorMessage).ToList()));
         }
         catch (DomainException ex)
         {
             await WriteErrorAsync(context, HttpStatusCode.BadRequest,
-                new ApiErrorResponse(ex.Message, "DOMAIN_ERROR"));
+                new ApiErrorResponse(ex.Message, ErrorCodes.Common.DomainError));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi không xác định");
             await WriteErrorAsync(context, HttpStatusCode.InternalServerError,
-                new ApiErrorResponse("Đã có lỗi xảy ra, vui lòng thử lại sau.", "INTERNAL_ERROR"));
+                new ApiErrorResponse("Đã có lỗi xảy ra, vui lòng thử lại sau.", ErrorCodes.Common.InternalError));
         }
     }
 

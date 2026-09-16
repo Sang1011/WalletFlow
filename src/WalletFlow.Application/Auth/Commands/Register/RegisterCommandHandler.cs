@@ -1,5 +1,6 @@
 using MediatR;
 using WalletFlow.Application.Auth.Common;
+using WalletFlow.Application.Common.Constants;
 using WalletFlow.Application.Common.Interfaces;
 using WalletFlow.Application.Common.Models;
 using WalletFlow.Domain.Entities;
@@ -29,15 +30,15 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Au
     {
         var usernameExists = _dbContext.Users.Any(u => u.Username == request.Username);
         if (usernameExists)
-            return Result<AuthResponse>.Failure("Tên đăng nhập đã tồn tại.", "USERNAME_EXISTS");
+            return Result<AuthResponse>.Failure("Tên đăng nhập đã tồn tại.", ErrorCodes.Auth.UsernameExists);
 
         var phoneExists = _dbContext.Users.Any(u => u.PhoneNumber == request.PhoneNumber);
         if (phoneExists)
-            return Result<AuthResponse>.Failure("Số điện thoại đã được sử dụng.", "PHONE_EXISTS");
+            return Result<AuthResponse>.Failure("Số điện thoại đã được sử dụng.", ErrorCodes.Auth.PhoneExists);
 
         var emailExists = _dbContext.Users.Any(u => u.Email == request.Email);
         if (emailExists)
-            return Result<AuthResponse>.Failure("Email đã được sử dụng.", "EMAIL_EXISTS");
+            return Result<AuthResponse>.Failure("Email đã được sử dụng.", ErrorCodes.Auth.EmailExists);
 
         var passwordHash = _passwordHasher.Hash(request.Password);
         var user = User.Create(request.Username, request.PhoneNumber, request.Email, passwordHash, request.FullName);
