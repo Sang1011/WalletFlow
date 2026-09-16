@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 using WalletFlow.Application.Common.Interfaces;
+using WalletFlow.Application.Common.Services;
 using WalletFlow.Infrastructure.Identity;
 using WalletFlow.Infrastructure.Persistence;
 using WalletFlow.Infrastructure.Services;
@@ -25,6 +26,7 @@ public static class DependencyInjection
         services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis") ?? "localhost:6379"));
         services.Configure<OtpSettings>(configuration.GetSection("Otp"));
         services.Configure<WalletSettings>(configuration.GetSection("Wallet"));
+        services.AddScoped<IAuditLogService, AuditLogService>();
         services.AddScoped<IOtpSettingsProvider, OtpSettingsProvider>();
         services.AddScoped<IWalletSettingsProvider, WalletSettingsProvider>();
         services.AddScoped<ICacheService, RedisCacheService>();
