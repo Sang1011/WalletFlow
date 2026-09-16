@@ -15,6 +15,7 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
+    public DbSet<ReconciliationMismatch> ReconciliationMismatches => Set<ReconciliationMismatch>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
